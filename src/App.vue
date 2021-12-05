@@ -1,11 +1,30 @@
 <template>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link to="/about">About</router-link> |
+    <router-link :to="{name: 'Map'}">Map</router-link>
   </div>
+
+
   <router-view/>
 </template>
 
+<script lang="ts">
+import { computed, defineComponent } from 'vue'
+import { useGeolocation } from '@/utils/useGeolocation'
+
+export default defineComponent({
+  name: 'App',
+  setup(){
+    const { coords } = useGeolocation()
+    const currPos = computed(() => ({
+      lat: coords.value.latitude,
+      lng: coords.value.longitude
+    }))
+    return { currPos }
+  }
+})
+</script>
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
