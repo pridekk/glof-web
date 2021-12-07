@@ -6,10 +6,10 @@
       <template #prepend>Email:</template>
     </el-input>
 
-    <el-input type="password" placeholder="패스워드를 입력하세요" v-model="password" required>
+    <el-input @keyup.enter="handleSubmit" type="password" placeholder="패스워드를 입력하세요" v-model="password" required>
       <template #prepend>Password:</template>
     </el-input>
-    <el-button @click.prevent="handleSubmit">로그인</el-button>
+    <el-button  @click.prevent="handleSubmit">로그인</el-button>
   </form>
 </template>
 

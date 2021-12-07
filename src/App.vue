@@ -21,7 +21,11 @@ export default defineComponent({
 
     const store = useStore()
 
-    user.value = store.state.user
+    store.dispatch("autoLogin").then(
+        () => {
+          user.value = store.state.user
+        }
+    )
 
     return {user}
   }
