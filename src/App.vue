@@ -1,27 +1,29 @@
 <template>
-  <div id="nav">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link> |
-    <router-link :to="{name: 'Map'}">Map</router-link>
-  </div>
-
+  <NavBar :user="user"/>
 
   <router-view/>
 </template>
 
 <script lang="ts">
-import { computed, defineComponent } from 'vue'
-import { useGeolocation } from '@/utils/useGeolocation'
+import { ref, computed, defineComponent } from 'vue'
+import { useStore} from "vuex";
+import NavBar from "@/components/NavBar.vue";
+
+
 
 export default defineComponent({
   name: 'App',
+  components: {
+    NavBar
+  },
   setup(){
-    const { coords } = useGeolocation()
-    const currPos = computed(() => ({
-      lat: coords.value.latitude,
-      lng: coords.value.longitude
-    }))
-    return { currPos }
+    const user = ref('')
+
+    const store = useStore()
+
+    user.value = store.state.user
+
+    return {user}
   }
 })
 </script>

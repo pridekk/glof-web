@@ -28,8 +28,10 @@ export default defineComponent({
     const loader = new Loader( {apiKey: GOOGLE_MAPS_API_KEY})
     const mapDiv = ref("<div/>")
 
+
     onMounted(async () => {
-      await loader.load()
+
+      let google = await loader.load()
       const isSupported = 'navigator' in window && 'geolocation' in navigator
 
       let watcher = null

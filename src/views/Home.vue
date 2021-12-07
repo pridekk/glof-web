@@ -1,18 +1,35 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    HOME {{user}}
+
+
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import {computed, defineComponent, watch} from 'vue'
+import { useStore} from 'vuex'
+import { useRouter } from "vue-router";
 
 export default defineComponent({
   name: 'Home',
   components: {
-    HelloWorld,
   },
+  setup() {
+    const store = useStore()
+    const user = computed(() => store.state.user)
+    const router = useRouter()
+    if(user.value === null){
+      router.push("/login")
+    }
+
+    watch(user, (user, prevUser) => {
+          if (user === null) {
+            router.push("/login")
+          }
+        }
+    )
+    return { user }
+  }
 });
 </script>
