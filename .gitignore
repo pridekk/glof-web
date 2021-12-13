@@ -21,3 +21,7 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+/functions/firestore-debug.log
+/firestore-debug.log
+/functions/ui-debug.log
+/ui-debug.log

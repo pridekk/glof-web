@@ -2,13 +2,14 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth"
 import { getFirestore, collection } from 'firebase/firestore'
+import {FirebaseApiKey} from './securityConstants'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-    apiKey: "AIzaSyB-t229L72fa1j477tUSSPpHuDBUdIJdFs",
+    apiKey: FirebaseApiKey,
     authDomain: "getlandonfoot.firebaseapp.com",
     projectId: "getlandonfoot",
     storageBucket: "getlandonfoot.appspot.com",
