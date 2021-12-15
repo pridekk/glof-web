@@ -1,22 +1,34 @@
 import { createStore } from 'vuex'
-import {browserLocalPersistence, setPersistence, signInWithEmailAndPassword, signOut} from 'firebase/auth'
+import {
+  browserLocalPersistence,
+  setPersistence,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
+} from 'firebase/auth'
 import { doc, getDoc } from 'firebase/firestore'
 
 import { auth, adminCollection } from '../utils/firebaseConfig'
 import firebase from "firebase/compat";
 
 interface State {
-  user: firebase.User | null
+  user: firebase.User | null,
+  authIsReady: boolean
 }
-export default createStore<State>({
+
+const store = createStore<State>({
   state: {
-    user: null
+    user: null,
+    authIsReady: false
   },
   mutations: {
     setUser(state, payload){
       state.user = payload
       console.log('user state changed', state.user)
       localStorage.setItem("userData", JSON.stringify(state.user))
+    },
+    setAuthIsReady(state, payload){
+      state.authIsReady = payload
     }
   },
   actions: {
@@ -24,18 +36,22 @@ export default createStore<State>({
       console.log('login action')
       await setPersistence(auth, browserLocalPersistence )
 
-
       const res = await signInWithEmailAndPassword(auth, email, password )
 
       if(res){
-        // const user = res.user
-        // const userDoc = await getDoc(doc(adminCollection, user.uid))
-        // if(userDoc.exists()){
-        //   context.commit('setUser', res.user)
-        // } else {
-        //   throw new Error("You are not authorized Admin")
-        // }
-        context.commit('setUser', res.user)
+        const user = res.user
+        try {
+          const userDoc = await getDoc(doc(adminCollection, user.uid))
+          if(userDoc.exists()){
+            context.commit('setUser', res.user)
+          } else {
+            throw new Error("You are not authorized Admin")
+          }
+        }
+        catch (e){
+          console.log(e.message)
+        }
+
       } else {
         throw new Error('Could not complete login')
       }
@@ -47,20 +63,17 @@ export default createStore<State>({
       const res = await signOut(auth)
       console.log(res)
       context.commit('setUser', null)
-    },
-
-    async autoLogin(context){
-
-      const userData = localStorage.getItem("userData")
-      if(userData){
-        context.commit('setUser', JSON.parse(userData))
-      }
     }
-
-
-
   },
   modules: {
   }
 })
 
+
+const unsubscribe = onAuthStateChanged(auth, (user) => {
+  store.commit('setAuthIsReady', true)
+  store.commit('setUser', user)
+  unsubscribe()
+})
+
+export default store

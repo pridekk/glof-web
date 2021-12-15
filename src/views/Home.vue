@@ -18,17 +18,9 @@ export default defineComponent({
   setup() {
     const store = useStore()
     const user = computed(() => store.state.user)
+    const authIsReady = computed(() => store.state.authIsReady)
     const router = useRouter()
-    if(user.value === null){
-      router.push("/login")
-    }
 
-    watch(user, (user, prevUser) => {
-          if (user === null) {
-            router.push("/login")
-          }
-        }
-    )
     return { user }
   }
 });

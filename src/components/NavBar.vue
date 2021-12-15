@@ -13,25 +13,18 @@
   </div>
 </template>
 
-<script lang="ts">
-import {computed, defineComponent} from "vue"
+<script lang="ts" setup>
+import {computed} from "vue"
 import {useStore} from "vuex"
-export default defineComponent({
-  name: "NavBar.vue",
 
-  setup(){
-    const store = useStore()
+const store = useStore()
 
-    const handleLogout = () => {
-      store.dispatch('logout')
-    }
+const handleLogout = () => {
+  store.dispatch('logout')
+}
 
-    return {
-      handleLogout,
-      user: computed(() => store.state.user)
-    }
-  }
-})
+const user = computed(() => store.state.user)
+
 </script>
 
 <style scoped>

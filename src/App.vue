@@ -1,35 +1,11 @@
 <template>
-  <NavBar :user="user"/>
-
+  <NavBar/>
   <router-view/>
 </template>
 
-<script lang="ts">
-import { ref, computed, defineComponent } from 'vue'
-import { useStore} from "vuex";
+<script lang="ts" setup>
 import NavBar from "@/components/NavBar.vue";
 
-
-
-export default defineComponent({
-  name: 'App',
-  components: {
-    NavBar
-  },
-  setup(){
-    const user = ref('')
-
-    const store = useStore()
-
-    store.dispatch("autoLogin").then(
-        () => {
-          user.value = store.state.user
-        }
-    )
-
-    return {user}
-  }
-})
 </script>
 <style>
 #app {

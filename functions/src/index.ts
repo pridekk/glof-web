@@ -1,16 +1,11 @@
-
 // The Cloud Functions for Firebase SDK to create Cloud Functions and set up triggers.
 import {https, logger, firestore as functionFirestore} from "firebase-functions";
-// The Firebase Admin SDK to access Firestore.
 import {initializeApp} from "firebase-admin";
-
+import {getFirestore, doc, getDoc} from "firebase/firestore";
 initializeApp();
 
+const db = getFirestore();
 
-const owners: number[][] = [
-  [1],
-  [2],
-];
 
 exports.getOwner = https.onRequest(async (req, res) => {
   // Grab the text parameter.
@@ -18,8 +13,19 @@ exports.getOwner = https.onRequest(async (req, res) => {
   const y = Number(req.query.y);
   // Push the new message into Firestore using the Firebase Admin SDK.
 
+  const docRef = await doc(db, "landOwners", `${x},${y}`);
+  const docSnap = await getDoc(docRef);
+
+  let data = null;
+  if (docSnap.exists()) {
+    data = docSnap.data();
+    console.log("Document data:", data);
+  } else {
+    // doc.data() will be undefined in this case
+    console.log("No such document!");
+  }
   // Send back a message that we've successfully written the message
-  res.json({result: owners[x][y]});
+  res.json({result: data});
 });
 
 
