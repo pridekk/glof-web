@@ -62,7 +62,7 @@ onMounted(async () => {
   let zoom = 8
   if(isSupported){
     watcher = navigator.geolocation.watchPosition(
-        (position) => {
+        async (position) => {
           coords.value = position.coords
           currPos.value.lat = coords.value.latitude
           currPos.value.lng = coords.value.longitude
@@ -79,14 +79,38 @@ onMounted(async () => {
           //   coordInfoWindow.setContent(createInfoWindowContent( currPos.value, map.getZoom()));
           //   coordInfoWindow.open(map);
           // });
+
+
           console.log(zoom<<5)
-          map.overlayMapTypes.insertAt(
+          await map.overlayMapTypes.insertAt(
               0,
               new CoordMapType(new google.maps.Size(zoom << 5, zoom << 5))
           );
+          let bounds = map.getBounds()
+          await getLandOwnersWithBounds(zoom, bounds)
+          await addEventListenersToMap(map)
+
         }
 
     )
+  }
+
+  const addEventListenersToMap = async (map: google.maps.Map) => {
+    map.addListener("dragend", () => {
+      let bounds = map.getBounds()
+      getLandOwnersWithBounds(zoom, bounds)
+    });
+
+    map.addListener("zoom_changed", () => {
+      let bounds = map.getBounds()
+      getLandOwnersWithBounds(zoom, bounds)
+    })
+
+  }
+  const getLandOwnersWithBounds = async (zoom: number, bounds: google.maps.LatLngBounds | undefined) => {
+    if(bounds){
+      console.log(bounds.toJSON())
+    }
   }
 
   const TILE_SIZE = 256;
