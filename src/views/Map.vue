@@ -9,9 +9,14 @@
 
 <script lang="ts" setup>
 /* eslint-disable no-undef */
-import {onMounted, onUnmounted, ref} from 'vue'
+import {computed, onMounted, onUnmounted, ref} from 'vue'
 import { FirebaseApiKey } from '@/utils/securityConstants'
 import { Loader } from '@googlemaps/js-api-loader'
+import { getLandOwnersWithBounds } from '@/utils/land'
+import {useStore} from "vuex";
+
+const store = useStore()
+const user = computed(() => store.state.user)
 
 const coords = ref({latitude: 0, longitude: 0})
 
@@ -87,7 +92,7 @@ onMounted(async () => {
               new CoordMapType(new google.maps.Size(zoom << 5, zoom << 5))
           );
           let bounds = map.getBounds()
-          await getLandOwnersWithBounds(zoom, bounds)
+          // await getLandOwnersWithBounds(JSON.parse(user.value).stsTokenManager.accessToken, zoom, bounds)
           await addEventListenersToMap(map)
 
         }
@@ -98,19 +103,15 @@ onMounted(async () => {
   const addEventListenersToMap = async (map: google.maps.Map) => {
     map.addListener("dragend", () => {
       let bounds = map.getBounds()
-      getLandOwnersWithBounds(zoom, bounds)
+      console.log(user.value)
+      getLandOwnersWithBounds(user.value.accessToken,zoom, bounds)
     });
 
     map.addListener("zoom_changed", () => {
       let bounds = map.getBounds()
-      getLandOwnersWithBounds(zoom, bounds)
+      getLandOwnersWithBounds(JSON.parse(user.value).stsTokenManager.accessToken,zoom, bounds)
     })
 
-  }
-  const getLandOwnersWithBounds = async (zoom: number, bounds: google.maps.LatLngBounds | undefined) => {
-    if(bounds){
-      console.log(bounds.toJSON())
-    }
   }
 
   const TILE_SIZE = 256;

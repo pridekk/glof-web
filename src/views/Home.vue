@@ -17,7 +17,6 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 const functions = getFunctions();
 const getOwner = httpsCallable(functions, 'getOwner');
 
-
 const store = useStore()
 const user = computed(() => store.state.user)
 
@@ -28,5 +27,4 @@ onMounted(async  () => {
     name.value = JSON.parse(response.data)
   }
 })
-
 </script>
