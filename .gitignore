@@ -25,3 +25,6 @@ pnpm-debug.log*
 /firestore-debug.log
 /functions/ui-debug.log
 /ui-debug.log
+/functions/firebase-debug.log
+/functions/lib/index.js
+/functions/lib/index.js.map

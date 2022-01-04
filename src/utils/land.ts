@@ -1,25 +1,26 @@
-import axios from 'axios'
+import axios from "axios"
 import {API_URL} from '@/utils/apiConfig'
 import LatLngBounds = google.maps.LatLngBounds;
 import LatLng = google.maps.LatLng;
 const GET_TILE_OWNERS_URL = `${API_URL}/lands/owners`
 
-export const getLandOwnersWithBounds = async (token: string, zoom: number, bounds: LatLngBounds | undefined) => {
+export const getLandOwnersWithBounds = async (token: string, zoom: number, bounds: LatLngBounds | undefined): Promise<TileOwner[]> => {
   if(bounds){
     console.log(bounds.toJSON())
 
     console.log(bounds.getNorthEast().toJSON())
     console.log(bounds.getSouthWest().toJSON())
 
-    getTileOwners(token, bounds.getNorthEast(),bounds.getSouthWest() )
+    return getTileOwners(token, bounds.getNorthEast(),bounds.getSouthWest() )
   }
+  return []
 }
 
 const ZOOM = 18;
 const SCALE = 1 << ZOOM;
 
 // eslint-disable-next-line max-len
-const getTileOwners = async (token: string, northEast: LatLng, southWest: LatLng) => {
+const getTileOwners = async (token: string, northEast: LatLng, southWest: LatLng): Promise<TileOwner[]> =>  {
   const southEastPoint = project(southWest.lat(), northEast.lng());
   const northWestPoint = project(northEast.lat(), southWest.lng());
 
@@ -36,16 +37,22 @@ const getTileOwners = async (token: string, northEast: LatLng, southWest: LatLng
         Authorization: `Bearer ${token}`
       }
     })
-    if(response.status === 200 )
+    if(response.status === 200 ){
       console.log(response.data)
-    return response.data
+
+      return response.data
+    } else return []
+
   } catch (e){
+
     console.log(e)
+    throw e
   }
 
 
 
 };
+
 
 const calculateTile = (point: PointType) => {
   const tileCoordinate = new PointType(
@@ -69,12 +76,32 @@ const project = (lat: number, lng: number) => {
   return new PointType(TILE_SIZE * (0.5 + lng / 360), TILE_SIZE * (0.5 - Math.log((1 + siny) / (1 - siny)) / (4 * Math.PI)));
 };
 
+export class TileOwner {
+  tile_x: number
+  tile_y: number
+  center_x: number
+  center_y: number
+  owner_id: string
+
+  constructor(tile_x: number, tile_y: number, center_x: number, center_y: number, owner_id: string) {
+    this.tile_x = tile_x
+    this.tile_y = tile_y
+    this.owner_id = owner_id
+    this.center_x = center_x
+    this.center_y = center_y
+  }
+
+  getCenter(){
+    return {lat: this.center_x, lng: this.center_y}
+  }
+
+}
 
 // eslint-disable-next-line require-jsdoc
 class PointType {
   x: number;
   y: number ;
-  // eslint-disable-next-line require-jsdoc
+
   constructor(x:number, y:number) {
     this.x = x;
     this.y = y;

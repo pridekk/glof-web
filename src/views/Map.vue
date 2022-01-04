@@ -12,13 +12,15 @@
 import {computed, onMounted, onUnmounted, ref} from 'vue'
 import { FirebaseApiKey } from '@/utils/securityConstants'
 import { Loader } from '@googlemaps/js-api-loader'
-import { getLandOwnersWithBounds } from '@/utils/land'
+import { getLandOwnersWithBounds, TileOwner } from '@/utils/land'
 import {useStore} from "vuex";
 
 const store = useStore()
 const user = computed(() => store.state.user)
 
 const coords = ref({latitude: 0, longitude: 0})
+
+const owners = ref<TileOwner[]>()
 
 const currPos = ref({
   lat: coords.value.latitude,
@@ -84,6 +86,25 @@ onMounted(async () => {
           //   coordInfoWindow.setContent(createInfoWindowContent( currPos.value, map.getZoom()));
           //   coordInfoWindow.open(map);
           // });
+          console.log('owners')
+          console.log(owners.value)
+
+          if(owners.value !== undefined){
+
+            let items = JSON.parse(JSON.stringify(owners.value))
+            console.log('owners items')
+            console.log(items)
+            items.owners.forEach((item: any) => {
+              let owner: TileOwner = new TileOwner(item.tile_x, item.tile_y, item.owner_id, item.center_x, item.center_y)
+              new google.maps.Marker({
+                position: owner.getCenter(),
+                map,
+                title: owner.owner_id,
+              });
+            })
+          }
+
+
 
 
           console.log(zoom<<5)
@@ -101,15 +122,29 @@ onMounted(async () => {
   }
 
   const addEventListenersToMap = async (map: google.maps.Map) => {
-    map.addListener("dragend", () => {
+    map.addListener("dragend", async () => {
       let bounds = map.getBounds()
       console.log(user.value)
-      getLandOwnersWithBounds(user.value.accessToken,zoom, bounds)
+      owners.value = await getLandOwnersWithBounds(user.value.accessToken, zoom, bounds)
+      if(owners.value !== undefined){
+
+        let items = JSON.parse(JSON.stringify(owners.value))
+        console.log('owners items')
+        console.log(items)
+        items.owners.forEach((item: any) => {
+          let owner: TileOwner = new TileOwner(item.tile_x, item.tile_y, item.owner_id, item.center_x, item.center_y)
+          new google.maps.Marker({
+            position: owner.getCenter(),
+            map,
+            title: owner.owner_id,
+          });
+        })
+      }
     });
 
-    map.addListener("zoom_changed", () => {
+    map.addListener("zoom_changed", async () => {
       let bounds = map.getBounds()
-      getLandOwnersWithBounds(JSON.parse(user.value).stsTokenManager.accessToken,zoom, bounds)
+      owners.value = await getLandOwnersWithBounds(JSON.parse(user.value).stsTokenManager.accessToken,zoom, bounds)
     })
 
   }
