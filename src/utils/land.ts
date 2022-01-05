@@ -48,9 +48,6 @@ const getTileOwners = async (token: string, northEast: LatLng, southWest: LatLng
     console.log(e)
     throw e
   }
-
-
-
 };
 
 
@@ -65,7 +62,7 @@ const calculateTile = (point: PointType) => {
 // const getTiles = (x: number, y: number) => console.log(x, y);
 const TILE_SIZE = 256;
 
-const project = (lat: number, lng: number) => {
+export const project = (lat: number, lng: number) => {
   let siny = Math.sin((lat * Math.PI) / 180);
 
   // Truncating to 0.9999 effectively limits latitude to 89.189. This is
@@ -105,5 +102,35 @@ class PointType {
   constructor(x:number, y:number) {
     this.x = x;
     this.y = y;
+  }
+}
+
+export class CoordMapType {
+  tileSize: google.maps.Size;
+
+  constructor(tileSize: google.maps.Size) {
+    this.tileSize = tileSize;
+  }
+  getTile(
+    coord: google.maps.Point,
+    zoom: number,
+    ownerDocument: Document
+  ): HTMLElement {
+    const div = ownerDocument.createElement("div");
+    console.log(zoom)
+    div.innerHTML = String(coord);
+    div.style.width = this.tileSize.width + "px";
+    div.style.height = this.tileSize.height + "px";
+    div.style.fontSize = "10";
+    div.style.borderStyle = "solid";
+    div.style.borderWidth = "1px";
+    div.style.borderColor = "#AAAAAA";
+    if(coord.x === 109 && coord.y === 49){
+      div.style.backgroundColor = "#000113"
+    }
+    return div;
+  }
+  releaseTile(tile: Element): void {
+    console.log(`released: ${tile}`)
   }
 }
